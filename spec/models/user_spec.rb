@@ -1,33 +1,38 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe User do
+
   subject(:user) do
-    FactoryGirl.build(:user,
-      email: "jonathan@fakesite.com",
-      password: "good_password")
+    User.create!(email: "example@gmail.com", password: "password")
   end
 
   it { should validate_presence_of(:email) }
   it { should validate_presence_of(:password_digest) }
-  it { should validate_length_of(:password).is_at_least(6) }
+  it do
+    should validate_length_of(:password).
+      is_at_least(6).
+      on(:create)
+    end
 
-  it "creates a password digest when a password is given" do
-    expect(user.password_digest).to_not be_nil
+  describe "#is_password?" do
+
+    it "accepts a correct password" do
+      expect(user.is_password?("password")).to be true
+    end
+
+    it "rejects an incorrect password" do
+      expect(user.is_password?("not_password")).to be false
+    end
   end
 
-  it "creates a session token before validation" do
-    user.valid?
-    expect(user.session_token).to_not be_nil
-  end
+  describe "#reset_session_token" do
 
-  describe "#reset_session_token!" do
-    it "sets a new session token on the user" do
-      user.valid?
-      old_session_token = user.session_token
-      user.reset_session_token!
+    it "creates a session token before validation" do
+      expect(user.session_token).to_not be_nil
+    end
 
-      # Miniscule chance this will fail.
-      expect(user.session_token).to_not eq(old_session_token)
+    it "resets the session token" do
+      expect(user.session_token).not_to eq(user.reset_session_token!)
     end
 
     it "returns the new session token" do
@@ -35,25 +40,14 @@ describe User do
     end
   end
 
-  describe "#is_password?" do
-    it "verifies a password is correct" do
-      expect(user.is_password?("good_password")).to be true
+  describe "::find_by_credentials" do
+
+    it "finds the correct user" do
+      expect(User.find_by_credentials(user.email, "password")).to eq(user)
     end
 
-    it "verifies a password is not correct" do
-      expect(user.is_password?("bad_password")).to be false
-    end
-  end
-
-  describe ".find_by_credentials" do
-    before { user.save! }
-
-    it "returns user given good credentials" do
-      expect(User.find_by_credentials("jonathan@fakesite.com", "good_password")).to eq(user)
-    end
-
-    it "returns nil given bad credentials" do
-      expect(User.find_by_credentials("jonathan@fakesite.com", "bad_password")).to eq(nil)
+    it "returns nil if given invalid credentials" do
+      expect(User.find_by_credentials("nobody@gmail.com", "wrong_password")).not_to eq(user)
     end
   end
 end

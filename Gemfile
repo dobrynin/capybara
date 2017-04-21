@@ -14,6 +14,11 @@ end
 gem 'pg'
 gem 'bcrypt'
 
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'factory_girl_rails'
+end
+
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
@@ -28,6 +33,7 @@ group :test do
   gem 'launchy'
   gem 'shoulda-matchers'
   gem 'rspec-rails'
+  gem 'guard-rspec'
 end
 
 gem 'newrelic_rpm'

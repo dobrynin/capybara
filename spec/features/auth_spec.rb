@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rails_helper'
 
 feature "the signup process" do
 
@@ -16,7 +17,7 @@ feature "the signup process" do
     end
 
     scenario "redirects to sign-in page after signup" do
-      expect(page).to have_content "Successfully created your account! Check your inbox for an activation email."
+      expect(page).to have_content "Successfully created your account!"
     end
   end
 
@@ -27,8 +28,8 @@ feature "the signup process" do
       click_on "create user"
     end
 
-    scenario "re-renders the new user page after failed signup" do
-      expect(page).to have_content "Password is too short (minimum is 6 characters)"
+    scenario "re-renders the signup page after failed signup" do
+      expect(page).to have_content "New User"
     end
   end
 
